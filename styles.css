@@ -138,6 +138,26 @@ a { color: inherit; }
   50%      { transform: scale(1.06); }
 }
 
+/* Grosser Stern auf dem Handy: nicht atmen lassen.
+
+   Warum? Damit eine Animation flüssig läuft, malt der Browser
+   das animierte Element einmal als BILD (Pixel, nicht mehr
+   Vektor) und bewegt dann nur noch dieses Bild. Gemalt wird
+   in der echten Grösse des Sterns — auf dem Handy also nur
+   110px. Der grosse Stern ist aber derselbe Stern mal 11,66
+   (siehe .star.is-intro). Handy-Browser blasen dann das kleine
+   Pixelbild auf, statt neu zu malen → verpixelt. Am Desktop
+   malt der Browser schlauer neu, darum sieht man es dort nicht.
+
+   Ohne Atmen gibt es nichts zu animieren, also malt der Browser
+   den grossen Stern wieder scharf als Vektor.
+   Sobald man tippt und der Stern klein wird, atmet er wieder.
+
+   (hover: none) = Geräte ohne Maus, also Handys und Tablets. */
+@media (hover: none) {
+  .star.is-intro .star__pulse { animation: none; }
+}
+
 .star__svg {
   display: block;
   width: 100%;
