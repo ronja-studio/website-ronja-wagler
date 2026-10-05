@@ -114,12 +114,43 @@ a { color: inherit; }
   cursor: pointer;
   z-index: 2;
   transform-origin: 50% 50%;
-  transition: transform 1100ms cubic-bezier(0.65, 0, 0.35, 1);
+
+  /* Alles, was sich zwischen gross und klein ändert, gleitet
+     mit derselben Kurve — sonst liefe die Mitte des Sterns
+     beim Schrumpfen nicht auf einer geraden Bahn. */
+  --star-ease: 1100ms cubic-bezier(0.65, 0, 0.35, 1);
+  transition:
+    transform var(--star-ease),
+    width     var(--star-ease),
+    height    var(--star-ease),
+    margin    var(--star-ease);
 }
 
-/* Fullscreen state: same star, scaled up and moved to the middle. */
+/* Fullscreen state: the star in the middle, REALLY big.
+
+   Früher war das derselbe kleine Stern, nur mit scale() 11,66-mal
+   vergrössert. Das sah am Handy verpixelt aus: Handy-Browser
+   malen ein Element mit transform einmal als Pixelbild in seiner
+   ECHTEN Grösse (110px) und blasen dieses Bild dann auf.
+   Am Desktop malt der Browser neu, darum fiel es dort nicht auf.
+
+   Jetzt bekommt der grosse Stern wirklich die grosse Breite und
+   Höhe. Dann ist schon das Pixelbild gross — und scharf.
+
+   Damit er beim Wachsen nicht aus seiner Ecke "herauswächst",
+   ziehen negative Ränder (margin) ihn um die halbe Zunahme
+   zurück. So bleibt seine Mitte, wo sie war, und translate()
+   schiebt ihn von dort in die Bildschirmmitte — genau wie
+   vorher. js/star.js muss davon nichts wissen.
+   (Margin auf allen vier Seiten, weil der Stern am Desktop links
+   unten verankert ist und am Handy rechts unten — es wirkt
+   jeweils nur die Seite, an der er festgemacht ist.) */
 .star.is-intro {
-  transform: translate(var(--star-dx), var(--star-dy)) scale(var(--star-scale-intro));
+  --star-big: calc(var(--star-size) * var(--star-scale-intro));
+  width:  var(--star-big);
+  height: var(--star-big);
+  margin: calc((var(--star-size) - var(--star-big)) / 2);
+  transform: translate(var(--star-dx), var(--star-dy));
   cursor: zoom-out;
   z-index: 3;
 }
@@ -136,26 +167,6 @@ a { color: inherit; }
 @keyframes star-pulse {
   0%, 100% { transform: scale(1);    }
   50%      { transform: scale(1.06); }
-}
-
-/* Grosser Stern auf dem Handy: nicht atmen lassen.
-
-   Warum? Damit eine Animation flüssig läuft, malt der Browser
-   das animierte Element einmal als BILD (Pixel, nicht mehr
-   Vektor) und bewegt dann nur noch dieses Bild. Gemalt wird
-   in der echten Grösse des Sterns — auf dem Handy also nur
-   110px. Der grosse Stern ist aber derselbe Stern mal 11,66
-   (siehe .star.is-intro). Handy-Browser blasen dann das kleine
-   Pixelbild auf, statt neu zu malen → verpixelt. Am Desktop
-   malt der Browser schlauer neu, darum sieht man es dort nicht.
-
-   Ohne Atmen gibt es nichts zu animieren, also malt der Browser
-   den grossen Stern wieder scharf als Vektor.
-   Sobald man tippt und der Stern klein wird, atmet er wieder.
-
-   (hover: none) = Geräte ohne Maus, also Handys und Tablets. */
-@media (hover: none) {
-  .star.is-intro .star__pulse { animation: none; }
 }
 
 .star__svg {
