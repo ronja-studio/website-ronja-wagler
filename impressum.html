@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Impressum &amp; Datenschutz — Ronja Wagler</title>
+<meta name="description" content="Impressum und Datenschutzerklärung der Website von Ronja Wagler.">
+<link rel="stylesheet" href="styles.css">
+<link rel="alternate" type="application/rss+xml" title="Ronja Wagler — Journal" href="feed.xml">
+</head>
+<!-- is-journal: leiht sich vom Journal den kleinen Stern in
+     der Ecke, die Kopfzeile und die Fusszeile.
+     is-legal: alles, was nur diese Seite braucht (Textspalte). -->
+<body class="is-journal is-legal">
+
+<a class="skip-link" href="#main">Zum Inhalt springen</a>
+
+<!-- Der Stern als Heim-Knopf, genau wie im Journal. -->
+<button id="star" class="star" aria-label="Zur Startseite">
+  <span class="star__pulse">
+    <svg class="star__svg" viewBox="0 0 200 200" aria-hidden="true" focusable="false">
+      <g id="star-rays"></g>
+    </svg>
+  </span>
+</button>
+
+<header class="masthead">
+  <p class="masthead__brand"><a href="index.html">Ronja Wagler</a></p>
+  <p class="masthead__here">Impressum &amp; Datenschutz</p>
+</header>
+
+<main id="main" class="legal">
+
+  <!-- =====================================================
+       IMPRESSUM
+       Die id="impressum" macht einen Sprungpunkt: Mit
+       impressum.html#impressum landet man genau hier.
+       ===================================================== -->
+  <section id="impressum" class="legal__section" aria-labelledby="impressum-title">
+    <h1 id="impressum-title" class="legal__title">Impressum</h1>
+
+    <!-- ↓↓↓ HIER DEINEN IMPRESSUM-TEXT EINFÜGEN ↓↓↓
+
+         Jeder Absatz in  <p> … </p>
+         Zwischenüberschriften in  <h2> … </h2>
+         Zeilenumbruch innerhalb eines Absatzes (z.B. in
+         der Adresse):  <br>
+
+         Beispiel:
+         <h2>Angaben gemäß § 5 DDG</h2>
+         <p>Ronja Wagler<br>
+            Musterstraße 1<br>
+            12345 Musterstadt</p>
+    -->
+    <p class="legal__todo">Text folgt.</p>
+    <!-- ↑↑↑ BIS HIER — und "Text folgt." dann löschen ↑↑↑ -->
+  </section>
+
+  <!-- =====================================================
+       DATENSCHUTZ
+       Sprungpunkt: impressum.html#datenschutz
+       ===================================================== -->
+  <section id="datenschutz" class="legal__section" aria-labelledby="datenschutz-title">
+    <h1 id="datenschutz-title" class="legal__title">Datenschutz</h1>
+
+    <!-- ↓↓↓ HIER DEINEN DATENSCHUTZ-TEXT EINFÜGEN ↓↓↓
+         (gleiche Regeln wie oben) -->
+    <p class="legal__todo">Text folgt.</p>
+    <!-- ↑↑↑ BIS HIER ↑↑↑ -->
+  </section>
+
+</main>
+
+<footer class="journal__foot">
+  <nav class="corner-links corner-links--foot" aria-label="Weitere Seiten">
+    <a href="journal.html">journal</a>
+    <a href="#" data-mail>contact me</a>
+    <!-- aria-current sagt Screenreadern: "Hier bist du gerade." -->
+    <a href="impressum.html" aria-current="page">Datenschutz &amp; Impressum</a>
+  </nav>
+</footer>
+
+<script src="js/star.js"></script>
+<script src="js/contact.js"></script>
+</body>
+</html>

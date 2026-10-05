@@ -1,0 +1,783 @@
+/* =========================================================
+   Ronja Wagler — portfolio
+   Design tokens taken straight from the Figma file.
+   ========================================================= */
+
+/* --- Fonts -------------------------------------------------
+   Drop the .woff2 files into fonts/ and these will pick up.
+   Until then the fallbacks below render, so nothing breaks.
+----------------------------------------------------------- */
+@font-face {
+  font-family: "Fliege Mono";
+  src: url("fonts/FliegeMono-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Griffiths";
+  src: url("fonts/Griffiths-Italic.woff2") format("woff2");
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}
+
+:root {
+  /* Colour */
+  --blue:  #2f00ff;
+  --black: #000000;
+  --white: #ffffff;
+
+  /* Type */
+  --mono:  "Fliege Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  --serif: "Griffiths", Georgia, "Times New Roman", serif;
+
+  --fs-body:  16px;
+  --fs-small: 12px;
+  --fs-arrow: 32px;
+
+  /* Star */
+  --star-size: 190px;          /* size on the home screen */
+  --star-scale-intro: 11.66;   /* 2215 / 190 — matches the Figma startscreen */
+  --star-dx: 0px;              /* set by star.js: home centre → viewport centre */
+  --star-dy: 0px;
+
+  /* Layout */
+  --edge: 40px;                /* page margin */
+}
+
+* { box-sizing: border-box; }
+
+/* Volle Höhe braucht nur die Startseite: die ist EIN fester
+   Bildschirm. Das Journal scrollt und darf so hoch werden,
+   wie es will. Darum hängt beides an .is-home statt am body. */
+html { height: 100%; }
+body.is-home { height: 100%; }
+
+body {
+  margin: 0;
+  background: var(--white);
+  color: var(--black);
+  font-family: var(--mono);
+  font-size: var(--fs-body);
+  line-height: normal;
+  isolation: isolate;          /* own stacking context, no z-index fights */
+}
+
+body.is-home { overflow: hidden; }   /* one fixed screen, kein Scrollen */
+
+/* Wenn die Grossansicht offen ist, soll der Hintergrund
+   nicht mitscrollen. Wird von js/journal.js gesetzt. */
+body.is-locked { overflow: hidden; }
+
+/* "hidden" soll IMMER verstecken.
+   Das HTML-Attribut hidden ist eigentlich nur ein leises
+   display: none vom Browser. Sobald wir einem Element selbst
+   ein display geben (z.B. .single { display: flex }), gewinnt
+   unseres — und das versteckte Ding ist plötzlich sichtbar.
+   Genau so stand die leere Grossansicht dauerhaft offen.
+   !important sorgt dafür, dass hidden immer das letzte Wort hat. */
+[hidden] { display: none !important; }
+
+a { color: inherit; }
+
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  background: var(--blue);
+  color: var(--white);
+  padding: 8px 12px;
+  z-index: 100;
+}
+.skip-link:focus { left: 0; }
+
+:focus-visible {
+  outline: 2px solid var(--blue);
+  outline-offset: 3px;
+}
+
+/* =========================================================
+   The star
+   ========================================================= */
+
+.star {
+  position: fixed;
+  left: 8%;
+  bottom: 15%;
+  width: var(--star-size);
+  height: var(--star-size);
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  z-index: 2;
+  transform-origin: 50% 50%;
+  transition: transform 1100ms cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+/* Fullscreen state: same star, scaled up and moved to the middle. */
+.star.is-intro {
+  transform: translate(var(--star-dx), var(--star-dy)) scale(var(--star-scale-intro));
+  cursor: zoom-out;
+  z-index: 3;
+}
+
+/* Slow breathing pulse, on an inner element so it doesn't
+   fight with the big intro→home transform above. */
+.star__pulse {
+  display: block;
+  width: 100%;
+  height: 100%;
+  animation: star-pulse 7s ease-in-out infinite;
+}
+
+@keyframes star-pulse {
+  0%, 100% { transform: scale(1);    }
+  50%      { transform: scale(1.06); }
+}
+
+.star__svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  fill: var(--blue);
+
+  /* Nur für die Kipp-Bewegung (MODE "tilt" in js/star.js):
+     der Stern folgt dem Cursor mit einer kleinen Verzögerung,
+     damit es sich nach Gewicht anfühlt statt nach Zappeln.
+     Länger = träger. Beim Wirbel ("swirl") passiert hier nichts. */
+  transition: transform 220ms ease-out;
+}
+
+/* =========================================================
+   Home screen layout
+   ========================================================= */
+
+.home {
+  position: relative;
+  height: 100%;
+  z-index: 1;
+}
+
+/* --- Intro, centred --- */
+.intro {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 400px;
+  max-width: calc(100% - 2 * var(--edge));
+  text-align: center;
+}
+
+.intro p { margin: 0 0 1.5em; }
+.intro p:last-child { margin-bottom: 0; }
+
+.intro__name-btn {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-color: transparent;
+  transition: text-decoration-color 150ms;
+}
+.intro__name-btn:hover,
+.intro__name-btn:focus-visible { text-decoration-color: currentColor; }
+
+/* --- Project preview, top right --- */
+.preview {
+  position: absolute;
+  top: 116px;
+  right: var(--edge);
+  width: 295px;
+  display: flex;
+  align-items: flex-start;
+}
+
+.preview__link {
+  display: block;
+  text-decoration: none;
+  width: 295px;
+}
+
+.preview__img {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 295 / 196;
+  object-fit: cover;
+  background: #eee;
+}
+
+.preview__caption {
+  display: block;
+  margin-top: 10px;
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: var(--fs-small);
+}
+
+.preview__arrow {
+  font-family: var(--mono);
+  font-size: var(--fs-arrow);
+  line-height: 1;
+  color: var(--blue);
+  background: none;
+  border: 0;
+  padding: 0 14px;
+  cursor: pointer;
+  align-self: center;
+  margin-top: -40px;           /* sit level with the image, not the caption */
+}
+.preview__arrow--prev { transform: scaleX(-1); }
+
+/* --- Corner links, bottom right --- */
+.corner-links {
+  position: absolute;
+  right: var(--edge);
+  bottom: calc(var(--edge) + 20px);
+  text-align: right;
+  font-size: var(--fs-small);
+  display: grid;
+  gap: 44px;
+}
+.corner-links a {
+  text-decoration: none;
+  text-underline-offset: 3px;
+}
+.corner-links a:hover,
+.corner-links a:focus-visible { text-decoration: underline; }
+
+/* =========================================================
+   Über mich pop-up
+   ========================================================= */
+
+.about {
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+}
+
+.about__panel {
+  position: absolute;
+  left: 8%;
+  top: 10%;
+  width: 440px;
+  max-width: calc(100% - 2 * var(--edge));
+  background: var(--blue);
+  color: var(--white);
+  padding: 45px;
+}
+
+.about__close {
+  position: absolute;
+  top: -12px;
+  right: -12px;
+  width: 25px;
+  height: 25px;
+  border-radius: 50%;
+  border: 1px solid var(--blue);
+  background: var(--white);
+  color: var(--blue);
+  font-family: var(--mono);
+  font-size: 14px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.about__title { font: inherit; margin: 0 0 1.5em; }
+.about__text  { margin: 0 0 2em; }
+
+.about__photo {
+  display: block;
+  width: 190px;
+  height: auto;
+  border: 8px solid var(--white);
+}
+
+/* =========================================================
+   Responsive — first pass, refine together in the browser
+   ========================================================= */
+
+@media (max-width: 900px) {
+  :root { --edge: 24px; --star-size: 140px; }
+  .preview { top: 90px; width: 240px; }
+  .preview__link { width: 240px; }
+}
+
+@media (max-width: 600px) {
+  :root { --edge: 16px; --star-size: 110px; }
+  .preview {
+    position: static;
+    width: auto;
+    padding: 80px var(--edge) 0;
+  }
+  .preview__link { width: auto; flex: 1; }
+  .intro { position: static; transform: none; margin: 48px auto 0; }
+  .corner-links { position: static; text-align: center; gap: 20px; margin-top: 48px; }
+  .home { height: auto; }
+  body.is-home { overflow: auto; }
+  .star { left: auto; right: var(--edge); bottom: var(--edge); }
+}
+
+/* Respect people who ask for less motion. */
+@media (prefers-reduced-motion: reduce) {
+  .star { transition-duration: 1ms; }
+  .star__pulse { animation: none; }
+}
+
+
+/* =========================================================
+   DAS JOURNAL
+   =========================================================
+
+   Ein Raster aus unterschiedlich hohen Karten ("Mauerwerk").
+   Die Spaltenzahl steckt in --feed-cols und wird weiter unten
+   pro Bildschirmbreite kleiner.
+
+   Wichtig: --feed-row und --feed-gap müssen zu ROW_HEIGHT und
+   ROW_GAP in js/journal.js passen. Wenn du hier etwas änderst,
+   ändere es dort mit — sonst rechnet JavaScript mit anderen
+   Zahlen, als CSS zeichnet, und die Karten überlappen.
+   ========================================================= */
+
+.is-journal {
+  --feed-cols: 3;
+  --feed-gap:  28px;   /* ↔ ROW_GAP in js/journal.js    */
+  --feed-row:  8px;    /* ↔ ROW_HEIGHT in js/journal.js */
+
+  /* Im Journal ist der Stern nur noch der Heim-Knopf in der
+     Ecke, nicht mehr das grosse Bild. Also kleiner. */
+  --star-size: 76px;
+}
+
+/* Stern in die echte Ecke, damit er den Beiträgen nicht
+   im Weg steht. Er bleibt beim Scrollen stehen (position:
+   fixed steht oben in .star). */
+.is-journal .star {
+  left: var(--edge);
+  bottom: var(--edge);
+}
+
+/* --- Kopfzeile ------------------------------------------ */
+
+.masthead {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 20px;
+  padding: var(--edge) var(--edge) 0;
+}
+
+.masthead p { margin: 0; }
+
+.masthead__brand a {
+  text-decoration: none;
+  text-underline-offset: 3px;
+}
+.masthead__brand a:hover,
+.masthead__brand a:focus-visible { text-decoration: underline; }
+
+/* "Journal" ist eine Ortsangabe, kein Projekttitel — bleibt
+   also in Fliege Mono, nur kleiner und blau. */
+.masthead__here {
+  font-size: var(--fs-small);
+  color: var(--blue);
+}
+
+/* --- Filterleiste --------------------------------------- */
+
+.tagbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 22px;
+  padding: 36px 0 28px;
+}
+
+/* Ein Schlagwort. Gleiche Form in der Leiste oben und unter
+   den Karten — darum eine eigene, kleine Klasse. */
+.tag {
+  font-family: var(--mono);
+  font-size: var(--fs-small);
+  text-decoration: none;
+  text-underline-offset: 3px;
+  white-space: nowrap;
+}
+.tag:hover,
+.tag:focus-visible { text-decoration: underline; }
+
+/* Das gerade gewählte Schlagwort ist blau und unterstrichen —
+   dieselbe Logik wie "Menu active" im Design-System. */
+.tag.is-active {
+  color: var(--blue);
+  text-decoration: underline;
+}
+
+/* --- Kopf einer Schlagwort-Seite ------------------------ */
+
+.taghead {
+  max-width: 560px;
+  padding-bottom: 40px;
+}
+
+/* Ein Projekttitel ist das, was die ARBEIT sagt —
+   also Griffiths Kursiv, nicht Fliege Mono. */
+.taghead__title {
+  font-family: var(--serif);
+  font-style: italic;
+  font-weight: 400;
+  font-size: 28px;
+  line-height: 1.2;
+  margin: 0 0 12px;
+}
+
+.taghead__blurb { margin: 0 0 10px; }
+
+.taghead__hint {
+  margin: 0;
+  font-size: var(--fs-small);
+  color: var(--blue);
+}
+
+/* --- Das Raster ----------------------------------------- */
+
+.journal {
+  padding: 0 var(--edge);
+  /* Platz unten, damit die letzte Karte nicht unter dem
+     Stern und den Fusslinks verschwindet. */
+  padding-bottom: 40px;
+}
+
+.feed {
+  display: grid;
+  grid-template-columns: repeat(var(--feed-cols), 1fr);
+  gap: var(--feed-gap);
+
+  /* Sehr viele sehr niedrige Zeilen. Jede Karte bekommt von
+     js/journal.js gesagt, über wie viele sie sich erstreckt.
+     So entsteht das Mauerwerk. */
+  grid-auto-rows: var(--feed-row);
+
+  /* Ohne das würden die Karten auf Zeilenhöhe gestreckt und
+     wir könnten ihre echte Höhe nicht messen. */
+  align-items: start;
+}
+
+.feed__empty {
+  margin: 0 0 32px;
+  color: var(--blue);
+}
+
+/* --- Eine Karte ----------------------------------------- */
+
+.post {
+  position: relative;
+  /* Die Karte ist so hoch wie ihr Inhalt. Die Rasterzeilen
+     kommen per grid-row-end aus dem JavaScript. */
+}
+
+/* Text-Beiträge bekommen einen blauen Rahmen. Dadurch liest
+   sich das Raster: Bilder sind randlos, Gedanken sind
+   eingerahmt. */
+.post--text {
+  border: 1px solid var(--blue);
+  padding: 22px;
+}
+
+.post__figure {
+  position: relative;
+  margin: 0;
+}
+
+.post__img {
+  display: block;
+  width: 100%;
+  height: auto;
+  background: #eee;      /* Platzhalterfläche, solange das Bild lädt */
+}
+
+/* "+2" oben rechts auf dem Bild, wenn im Beitrag mehr Bilder
+   stecken als das eine gezeigte. */
+.post__count {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: var(--blue);
+  color: var(--white);
+  font-size: var(--fs-small);
+  line-height: 1;
+  padding: 5px 7px;
+}
+
+.post__date {
+  display: block;
+  margin-top: 10px;
+  font-size: var(--fs-small);
+  color: var(--blue);
+}
+.post--text .post__date { margin-top: 0; }
+
+/* Der Titel ist Ronjas Stimme → Fliege Mono, nicht kursiv. */
+.post__title {
+  font: inherit;
+  font-weight: 400;
+  margin: 6px 0 0;
+}
+
+/* Die Bildunterschrift gehört zur Arbeit → Griffiths Kursiv. */
+.post__caption {
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: var(--fs-small);
+  margin: 6px 0 0;
+}
+
+/* --- Gekürzter Text auf der Karte ---
+   Begrenzt auf --lines Zeilen (kommt aus EXCERPT_LINES in
+   js/journal.js). Wenn wirklich etwas abgeschnitten wird,
+   setzt das JavaScript die Klasse .is-clamped und der Text
+   läuft unten sanft aus — so sieht man, dass es weitergeht. */
+.post__excerpt {
+  margin-top: 10px;
+  line-height: 1.5;
+  max-height: calc(var(--lines, 12) * 1.5em);
+  overflow: hidden;
+}
+
+.post__excerpt p { margin: 0 0 0.8em; }
+.post__excerpt p:last-child { margin-bottom: 0; }
+
+.post__excerpt.is-clamped {
+  -webkit-mask-image: linear-gradient(to bottom, #000 72%, transparent 100%);
+          mask-image: linear-gradient(to bottom, #000 72%, transparent 100%);
+}
+
+.post__tags {
+  margin: 14px 0 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 14px;
+
+  /* Muss ÜBER dem unsichtbaren Karten-Link liegen, sonst
+     fängt der die Klicks auf die Schlagworte ab. */
+  position: relative;
+  z-index: 2;
+}
+
+/* --- Der unsichtbare Link über der ganzen Karte ---
+   Ein echter Link (nicht nur ein Klick-Ereignis), damit man
+   ihn mit der Tab-Taste erreicht, die Adresse kopieren und
+   mit der mittleren Maustaste in einem neuen Tab öffnen kann.
+   Die Schlagworte darin liegen mit z-index: 2 darüber. */
+.post__open {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+}
+
+/* =========================================================
+   Grossansicht eines Beitrags
+   ========================================================= */
+
+.single {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+
+  /* Blauer Hauch über der Seite — auf weissem Grund wäre ein
+     weisser Schleier unsichtbar, und Schwarz wäre fremd im
+     Farbsystem. */
+  background: rgba(47, 0, 255, 0.14);
+
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: var(--edge);
+  overflow: auto;
+}
+
+.single__panel {
+  position: relative;
+  width: 100%;
+  max-width: 720px;
+  max-height: calc(100vh - 2 * var(--edge));
+  overflow: auto;
+  background: var(--white);
+  border: 1px solid var(--blue);
+  padding: 45px;
+}
+
+/* Gleiche Form wie das Schliessen-Kreuz im Über-mich-Fenster. */
+.single__close {
+  position: sticky;
+  top: 0;
+  float: right;
+  width: 25px;
+  height: 25px;
+  border-radius: 50%;
+  border: 1px solid var(--blue);
+  background: var(--white);
+  color: var(--blue);
+  font-family: var(--mono);
+  font-size: 14px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.single__date {
+  display: block;
+  font-size: var(--fs-small);
+  color: var(--blue);
+}
+
+.single__title {
+  font: inherit;
+  font-weight: 400;
+  margin: 8px 0 0;
+}
+
+.single__text {
+  margin-top: 20px;
+  line-height: 1.5;
+}
+.single__text p { margin: 0 0 1em; }
+.single__text p:last-child { margin-bottom: 0; }
+
+.single__figure { margin: 28px 0 0; }
+
+.single__img {
+  display: block;
+  width: 100%;
+  height: auto;
+  background: #eee;
+}
+
+.single__caption {
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: var(--fs-small);
+  margin-top: 8px;
+}
+
+.single__link { margin: 24px 0 0; }
+.single__link a { text-underline-offset: 3px; }
+
+.single__tags {
+  margin: 28px 0 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 14px;
+}
+
+/* =========================================================
+   Fusszeile im Journal
+   ========================================================= */
+
+.journal__foot {
+  padding: 0 var(--edge) var(--edge);
+  /* Links Platz lassen für den Stern in der Ecke. */
+  padding-left: calc(var(--edge) + var(--star-size) + 24px);
+}
+
+/* Im Journal stehen die Ecklinks wirklich im Dokument,
+   nicht absolut in der Ecke wie auf der Startseite. */
+.corner-links--foot {
+  position: static;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px 32px;
+}
+
+/* =========================================================
+   Journal — responsiv
+   ========================================================= */
+
+@media (max-width: 1100px) {
+  .is-journal { --feed-cols: 2; }
+}
+
+@media (max-width: 900px) {
+  .is-journal { --star-size: 64px; --feed-gap: 20px; }
+  .tagbar { padding: 28px 0 22px; }
+  .single__panel { padding: 32px; }
+  .taghead__title { font-size: 24px; }
+}
+
+@media (max-width: 600px) {
+  .is-journal { --feed-cols: 1; --star-size: 52px; }
+
+  /* Eine Spalte braucht kein Mauerwerk mehr — aber die
+     Rechnung im JavaScript stört auch nicht, sie ergibt
+     dann einfach eine Karte pro "Reihe". */
+  .masthead { padding-top: 20px; }
+  .single__panel { padding: 24px; }
+  .corner-links--foot { justify-content: flex-start; }
+  .journal__foot { padding-left: calc(var(--edge) + var(--star-size) + 16px); }
+}
+
+
+/* =========================================================
+   IMPRESSUM & DATENSCHUTZ
+   =========================================================
+
+   Eine reine Textseite. Sie leiht sich vom Journal den
+   Stern, die Kopf- und die Fusszeile (darum steht im HTML
+   auch is-journal am body) und braucht selbst nur eine
+   gut lesbare Textspalte.
+   ========================================================= */
+
+/* Höchstens so breit, dass eine Zeile noch bequem zu lesen
+   ist — etwa 60 bis 70 Zeichen. Rechtstexte sind lang,
+   da hilft eine schmale Spalte besonders. */
+:root { --legal-width: 640px; }
+
+.legal {
+  max-width: calc(var(--legal-width) + 2 * var(--edge));
+  padding: 56px var(--edge) 80px;
+  line-height: 1.5;
+}
+
+/* Abstand zwischen Impressum und Datenschutz. */
+.legal__section + .legal__section { margin-top: 72px; }
+
+/* Die grossen Überschriften: Fliege Mono, wie alles, was
+   DU sagst (Projekttitel wären Griffiths). Blau, damit man
+   beim Scrollen sieht, wo der zweite Teil anfängt. */
+.legal__title {
+  font: inherit;
+  color: var(--blue);
+  margin: 0 0 24px;
+}
+
+/* Zwischenüberschriften im eingefügten Text (<h2>):
+   gleiche Schrift, nur mit Luft darüber. */
+.legal h2 {
+  font: inherit;
+  margin: 2em 0 0.5em;
+}
+
+.legal p { margin: 0 0 1em; }
+
+/* Lange Links (z.B. zu Behörden) dürfen umbrechen,
+   statt auf dem Handy aus dem Bild zu ragen. */
+.legal a { overflow-wrap: anywhere; text-underline-offset: 3px; }
+
+/* "Text folgt." — der Platzhalter, bis dein Text da ist. */
+.legal__todo { color: var(--blue); font-size: var(--fs-small); }
+
+/* Der Link zur Seite, auf der man gerade ist, bleibt
+   unterstrichen — wie das aktive Schlagwort im Journal. */
+.corner-links a[aria-current="page"] { text-decoration: underline; }
+
+@media (max-width: 600px) {
+  .legal { padding-top: 36px; }
+  .legal__section + .legal__section { margin-top: 56px; }
+}

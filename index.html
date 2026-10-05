@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ronja Wagler — Konzept &amp; Idee, Design, Illustration</title>
+<meta name="description" content="Ronja Wagler — Konzept &amp; Idee, Design, Illustration, Geschriebenes. Good design for a good cause.">
+<link rel="stylesheet" href="styles.css">
+<link rel="alternate" type="application/rss+xml" title="Ronja Wagler — Journal" href="feed.xml">
+</head>
+<body class="is-home">
+
+<a class="skip-link" href="#main">Zum Inhalt springen</a>
+
+<!-- The star. Lives outside main so it can sit above/behind everything. -->
+<button id="star" class="star is-intro" aria-label="Zur Startseite">
+  <span class="star__pulse">
+    <svg class="star__svg" viewBox="0 0 200 200" aria-hidden="true" focusable="false">
+      <g id="star-rays"></g>
+    </svg>
+  </span>
+</button>
+
+<main id="main" class="home">
+
+  <!-- Project preview, top right -->
+  <section class="preview" aria-label="Aus dem Journal">
+    <button class="preview__arrow preview__arrow--prev" aria-label="Vorheriger Beitrag">&#8594;</button>
+    <a class="preview__link" href="#">
+      <img class="preview__img" src="" alt="" width="295" height="196">
+      <span class="preview__caption"></span>
+    </a>
+    <button class="preview__arrow preview__arrow--next" aria-label="N&auml;chster Beitrag">&#8594;</button>
+  </section>
+
+  <!-- Intro, centred -->
+  <section class="intro">
+    <p class="intro__name"><button id="about-open" class="intro__name-btn">Ronja Wagler</button></p>
+    <p class="intro__disciplines">Konzept &amp; Idee, Design,<br>Illustration, Geschriebenes</p>
+    <p class="intro__claim">good design for a good cause</p>
+  </section>
+
+  <!-- Footer links, bottom right -->
+  <nav class="corner-links" aria-label="Weitere Seiten">
+    <a href="journal.html">journal</a>
+    <a href="#" data-mail>contact me</a>
+    <a href="impressum.html">Datenschutz &amp; Impressum</a>
+  </nav>
+
+</main>
+
+<!-- Über mich pop-up -->
+<div id="about" class="about" hidden>
+  <div class="about__panel" role="dialog" aria-modal="true" aria-labelledby="about-title">
+    <button id="about-close" class="about__close" aria-label="Schlie&szlig;en">&times;</button>
+    <h2 id="about-title" class="about__title">&Uuml;ber mich</h2>
+    <p class="about__text">Hi, ich bin Ronja und gestalte am liebsten f&uuml;r das Gute in dieser Welt &ndash;
+      im Gro&szlig;en wie im Kleinen.<br>Du auch? Dann lass uns zusammen arbeiten.</p>
+    <img class="about__photo" src="images/ich-web.jpg" alt="Portr&auml;t von Ronja Wagler">
+  </div>
+</div>
+
+<script src="js/posts.js"></script>
+<script src="js/star.js"></script>
+<script src="js/site.js"></script>
+<script src="js/contact.js"></script>
+</body>
+</html>

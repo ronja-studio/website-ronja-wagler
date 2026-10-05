@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Journal — Ronja Wagler</title>
+<meta name="description" content="Journal von Ronja Wagler — Prozess, Gedanken und Projekte aus Konzept, Design und Illustration.">
+<link rel="stylesheet" href="styles.css">
+<link rel="alternate" type="application/rss+xml" title="Ronja Wagler — Journal" href="feed.xml">
+</head>
+<body class="is-journal">
+
+<a class="skip-link" href="#main">Zum Inhalt springen</a>
+
+<!-- Derselbe Stern wie auf der Startseite, aber ohne die
+     Klasse is-intro: hier ist er direkt der kleine
+     Heim-Knopf in der Ecke, kein Vorhang. -->
+<button id="star" class="star" aria-label="Zur Startseite">
+  <span class="star__pulse">
+    <svg class="star__svg" viewBox="0 0 200 200" aria-hidden="true" focusable="false">
+      <g id="star-rays"></g>
+    </svg>
+  </span>
+</button>
+
+<header class="masthead">
+  <p class="masthead__brand"><a href="index.html">Ronja Wagler</a></p>
+  <p class="masthead__here">Journal</p>
+</header>
+
+<main id="main" class="journal">
+
+  <!-- Filterleiste: "alles" + jedes benutzte Schlagwort.
+       Wird von js/journal.js gefüllt. -->
+  <nav id="tagbar" class="tagbar" aria-label="Nach Schlagwort filtern"></nav>
+
+  <!-- Kopf einer Schlagwort-Seite. Bleibt leer und versteckt,
+       solange kein ?tag=… in der Adresse steht. -->
+  <div id="taghead" class="taghead" hidden></div>
+
+  <!-- Das Raster. Die Karten kommen aus js/posts.js. -->
+  <div id="feed" class="feed"></div>
+
+</main>
+
+<footer class="journal__foot">
+  <nav class="corner-links corner-links--foot" aria-label="Weitere Seiten">
+    <a href="feed.xml">rss</a>
+    <a href="#" data-mail>contact me</a>
+    <a href="impressum.html">Datenschutz &amp; Impressum</a>
+  </nav>
+</footer>
+
+<!-- Grossansicht eines einzelnen Beitrags.
+     Inhalt wird beim Öffnen von js/journal.js eingesetzt. -->
+<div id="single" class="single" hidden>
+  <div class="single__panel" role="dialog" aria-modal="true" aria-label="Beitrag">
+    <button class="single__close" aria-label="Schlie&szlig;en">&times;</button>
+    <div class="single__body"></div>
+  </div>
+</div>
+
+<script src="js/posts.js"></script>
+<script src="js/star.js"></script>
+<script src="js/journal.js"></script>
+<script src="js/contact.js"></script>
+</body>
+</html>
