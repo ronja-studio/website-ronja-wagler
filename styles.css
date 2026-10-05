@@ -342,6 +342,18 @@ a { color: inherit; }
   .home { height: auto; }
   body.is-home { overflow: auto; }
   .star { left: auto; right: var(--edge); bottom: var(--edge); }
+
+  /* Über-mich-Karte mittig. Am Desktop steht sie bei left: 8%.
+     Am Handy ist sie aber fast so breit wie der Bildschirm —
+     8% links plus volle Breite schob sie an den rechten Rand,
+     und der runde ✕-Knopf hing halb über den Bildschirm hinaus.
+     Jetzt: links und rechts derselbe Abstand (--edge), die
+     Breite ergibt sich daraus von selbst. */
+  .about__panel {
+    left: var(--edge);
+    right: var(--edge);
+    width: auto;
+  }
 }
 
 /* Respect people who ask for less motion. */
