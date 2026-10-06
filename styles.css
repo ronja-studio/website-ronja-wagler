@@ -370,16 +370,19 @@ a { color: inherit; }
    Die Spaltenzahl steckt in --feed-cols und wird weiter unten
    pro Bildschirmbreite kleiner.
 
-   Wichtig: --feed-row und --feed-gap müssen zu ROW_HEIGHT und
-   ROW_GAP in js/journal.js passen. Wenn du hier etwas änderst,
-   ändere es dort mit — sonst rechnet JavaScript mit anderen
-   Zahlen, als CSS zeichnet, und die Karten überlappen.
+   --feed-row und --feed-gap darfst du frei ändern, auch pro
+   Bildschirmbreite: js/journal.js liest die Werte beim
+   Rechnen direkt von hier ab.
    ========================================================= */
 
 .is-journal {
   --feed-cols: 3;
-  --feed-gap:  28px;   /* ↔ ROW_GAP in js/journal.js    */
-  --feed-row:  8px;    /* ↔ ROW_HEIGHT in js/journal.js */
+  --feed-gap:  28px;   /* Abstand zwischen den Karten */
+
+  /* Das Raster rechnet in sehr kleinen Zeilen und gibt jeder
+     Karte so viele davon, wie sie braucht. Kleiner = Karten
+     schliessen genauer auf, aber es wird öfter gerechnet. */
+  --feed-row:  8px;
 
   /* Im Journal ist der Stern nur noch der Heim-Knopf in der
      Ecke, nicht mehr das grosse Bild. Also kleiner. */

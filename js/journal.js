@@ -32,13 +32,16 @@
      Grossansicht. Höher = längere Karten. */
   var EXCERPT_LINES = 12;
 
-  /* Das Raster rechnet in sehr kleinen Zeilen und gibt jeder
-     Karte so viele davon, wie sie braucht. Je kleiner dieser
-     Wert, desto genauer schliessen die Karten auf — aber
-     desto öfter muss gerechnet werden. 8px ist ein guter
-     Kompromiss. Muss zu --feed-row in styles.css passen. */
-  var ROW_HEIGHT = 8;
-  var ROW_GAP    = 28;   /* muss zu --feed-gap passen */
+  /* Zeilenhöhe und Abstand des Rasters stehen NUR in
+     styles.css (--feed-row und --feed-gap). Dieses Skript
+     fragt sie beim Rechnen dort ab — siehe spanCard().
+
+     Früher standen die beiden Zahlen hier noch einmal, und
+     man musste sie von Hand gleich halten. Am Handy und
+     Tablet wird der Abstand in der CSS aber kleiner (20 statt
+     28px) — das Skript rechnete weiter mit 28, gab jeder
+     Karte zu wenig Platz, und die Karten rutschten
+     übereinander. Jetzt gibt es nur noch eine Quelle. */
 
   /* Monatsnamen für die Datumsanzeige. */
   var MONTHS = [
@@ -272,7 +275,7 @@
      5. DAS MAUERWERK-RASTER
 
      Das Raster ist ein CSS-Grid mit sehr vielen, sehr
-     niedrigen Zeilen (ROW_HEIGHT). Jede Karte bekommt per
+     niedrigen Zeilen (--feed-row in styles.css). Jede Karte bekommt per
      JavaScript gesagt, über wie viele dieser Zeilen sie sich
      erstreckt — nämlich genau so viele, wie sie hoch ist.
      So entstehen die versetzten Spalten, aber die Reihenfolge
@@ -304,7 +307,19 @@
        align-items: start steht. Darum ist offsetHeight hier
        die echte Inhaltshöhe. */
     var height = card.getBoundingClientRect().height;
-    var span = Math.ceil((height + ROW_GAP) / (ROW_HEIGHT + ROW_GAP));
+
+    /* Zeilenhöhe und Abstand so, wie das Raster sie GERADE
+       wirklich benutzt — also schon mit den Werten für die
+       aktuelle Bildschirmbreite. getComputedStyle liefert
+       z.B. "20px"; parseFloat macht daraus die Zahl 20. */
+    var gridStyle = getComputedStyle(card.parentNode);
+    var rowHeight = parseFloat(gridStyle.gridAutoRows) || 8;
+    var rowGap    = parseFloat(gridStyle.rowGap) || 0;
+
+    /* Eine Karte über N Zeilen ist N Zeilen hoch plus die
+       N−1 Abstände dazwischen. Wir suchen das kleinste N,
+       bei dem das mindestens so hoch ist wie die Karte. */
+    var span = Math.ceil((height + rowGap) / (rowHeight + rowGap));
     card.style.gridRowEnd = "span " + Math.max(1, span);
   }
 
